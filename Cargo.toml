@@ -5,4 +5,4 @@ authors = ["Carlo Abelli <carlo@abelli.org>"]
 edition = "2018"
 
 [dependencies]
-clap = "2.33.0"
+structopt = "0.2.15"
