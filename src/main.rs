@@ -36,7 +36,7 @@ struct Opt {
         long = "pad",
         parse(from_os_str),
     )]
-    /// The pad (key) to use for encryption/decryption
+    /// The pad to use for encryption/decryption
     pad: PathBuf,
 }
 
@@ -57,17 +57,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut input_buffer = vec![0u8; CAPACITY];
     let mut pad_buffer = vec![0u8; CAPACITY];
+    let mut output_buffer = vec![0u8; CAPACITY];
     loop {
         let size = input.read(&mut input_buffer)?;
         if size == 0 {
             break;
         }
         pad.read_exact(&mut pad_buffer[..size])?;
-        let output_buffer: Vec<u8> = input_buffer.iter()
+        input_buffer.iter()
             .zip(pad_buffer.iter())
             .map(|(input_byte, pad_byte)| input_byte ^ pad_byte)
-            .collect();
-        output.write_all(&output_buffer)?;
+            .zip(output_buffer.iter_mut())
+            .map(|(output_byte, output)| *output = output_byte);
+        output.write_all(&output_buffer[..size])?;
     }
 
     Ok(())
